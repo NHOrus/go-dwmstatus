@@ -1,28 +1,17 @@
 package main
 
-// #cgo LDFLAGS: -lX11 -lasound
+// #cgo CFLAGS: -I/usr/local/include
+// #cgo LDFLAGS: -L/usr/local/lib -lX11
 // #include <X11/Xlib.h>
 import "C"
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net"
-	"strings"
 	"time"
 )
 
 var dpy = C.XOpenDisplay(nil)
-
-func getLoadAverage(file string) (lavg string, err error) {
-	loadavg, err := ioutil.ReadFile(file)
-	if err != nil {
-		return "Couldn't read loadavg", err
-	}
-	lavg = strings.Join(strings.Fields(string(loadavg))[:3], " ")
-	return
-}
 
 func setStatus(s *C.char) {
 	C.XStoreName(dpy, C.XDefaultRootWindow(dpy), s)
@@ -41,11 +30,7 @@ func main() {
 	for {
 		t := time.Now().Format("Mon 02 15:04")
 
-		l, err := getLoadAverage("/proc/loadavg")
-		if err != nil {
-			log.Println(err)
-		}
-		s := formatStatus("%s :: %s", l, t)
+		s := formatStatus("%s", t)
 		setStatus(s)
 		time.Sleep(time.Second)
 	}
