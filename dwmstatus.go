@@ -28,7 +28,7 @@ func main() {
 		log.Fatal("Can't open display")
 	}
 	for {
-		t := time.Now().Format("Mon 02 15:04")
+		t := time.Now().Format("Mon 2006-Jan-2 15:04:05")
 
 		s := formatStatus("%s", t)
 		setStatus(s)
