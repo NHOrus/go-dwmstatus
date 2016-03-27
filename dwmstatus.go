@@ -38,7 +38,9 @@ func main() {
 	for {
 		t := time.Now().Format("Mon 2006-Jan-2 15:04:05")
 
-		s := formatStatus("%s", t)
+		m, _ := memUpdate()
+
+		s := formatStatus("%s :: %s", m, t)
 		setStatus(s)
 		time.Sleep(time.Second)
 	}
@@ -60,38 +62,42 @@ func init() {
 
 }
 
-func (m *memData) Update() error {
+func memUpdate() (string, error) {
+	var memTotal, memFree, memUse, swapTotal, swapUse uint64
+	var mtemp int64
+	var memPercent, swapPercent int
+
 	if pae {
 		mtemp, err := sysctl.GetInt64("hw.availpages")
 		if err != nil {
 			panic(err)
 		}
-		m.memTotal = uint64(mtemp * pagesize)
-	}
+		memTotal = uint64(mtemp * pagesize)
+	} else {
 
-	var mpage, mtemp int64
-
-	mtemp, err := sysctl.GetInt64("hw.physmem")
-	if err != nil {
-		panic(err)
-	}
-	m.memTotal = uint64(mtemp)
-
-	for _, str := range []string{"vm.stats.vm.v_cache_count", "vm.stats.vm.v_free_count"} {
-
-		mpage, err = sysctl.GetInt64(str)
+		mtemp, err := sysctl.GetInt64("hw.physmem")
 		if err != nil {
 			panic(err)
 		}
-		mtemp = mpage * pagesize
+		memTotal = uint64(mtemp)
 	}
-	m.memFree = uint64(mtemp)
 
-	m.memUse = m.memTotal - m.memFree
-	m.memPercent = int(m.memUse * 100 / m.memTotal)
+	mtemp = 0
+	for _, str := range []string{"vm.stats.vm.v_cache_count", "vm.stats.vm.v_free_count"} {
 
-	mtemp, err = sysctl.GetInt64("vm.swap_total")
-	m.swapTotal = uint64(mtemp)
+		mpage, err := sysctl.GetInt64(str)
+		if err != nil {
+			panic(err)
+		}
+		mtemp += mpage * pagesize
+	}
+	memFree = uint64(mtemp)
+
+	memUse = memTotal - memFree
+	memPercent = int(memUse * 100 / memTotal)
+
+	mtemp, err := sysctl.GetInt64("vm.swap_total")
+	swapTotal = uint64(mtemp)
 
 	err = nil
 
@@ -100,9 +106,11 @@ func (m *memData) Update() error {
 		panic(err)
 	}
 	if i >= 0 && swapArr.ksw_total != 0 {
-		m.swapUse = uint64(swapArr.ksw_used) * uint64(pagesize)
+		swapUse = uint64(swapArr.ksw_used) * uint64(pagesize)
 	}
-	m.swapPercent = int(m.swapUse * 100 / m.swapTotal)
-
-	return nil
+	swapPercent = int(swapUse * 100 / swapTotal)
+	
+	out := fmt.Sprintf("SW: %d%% of %s :: MEM %d%% of %s", swapPercent, humanBytes(float32(swapTotal)), memPercent, humanBytes(float32(memTotal)))
+	
+	return out, nil
 }
