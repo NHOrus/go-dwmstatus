@@ -18,19 +18,19 @@ const (
 //formats value in bytes into human-readable value in binary power of bytes.
 func humanBytes(b float32) string {
 	if b > 10*PiB {
-		return fmt.Sprintf("%.0f PiB", b/PiB)
+		return fmt.Sprintf("%.0f PB", b/PiB)
 	}
 	if b > 10*TiB {
-		return fmt.Sprintf("%.0f TiB", b/TiB)
+		return fmt.Sprintf("%.0f TB", b/TiB)
 	}
 	if b > 10*GiB {
-		return fmt.Sprintf("%.0f GiB", b/GiB)
+		return fmt.Sprintf("%.0f GB", b/GiB)
 	}
 	if b > 10*MiB {
-		return fmt.Sprintf("%.0f MiB", b/MiB)
+		return fmt.Sprintf("%.0f MB", b/MiB)
 	}
 	if b > 10*KiB {
-		return fmt.Sprintf("%.0f KiB", b/KiB)
+		return fmt.Sprintf("%.0f KB", b/KiB)
 	}
 	return fmt.Sprintf("%.0f B", b)
 }
