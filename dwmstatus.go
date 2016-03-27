@@ -64,7 +64,6 @@ func init() {
 
 func memUpdate() (string, error) {
 	var memTotal, memFree, memUse, swapTotal, swapUse uint64
-	var mtemp int64
 	var memPercent, swapPercent int
 
 	if pae {
@@ -82,7 +81,7 @@ func memUpdate() (string, error) {
 		memTotal = uint64(mtemp)
 	}
 
-	mtemp = 0
+	var mtemp int64
 	for _, str := range []string{"vm.stats.vm.v_cache_count", "vm.stats.vm.v_free_count"} {
 
 		mpage, err := sysctl.GetInt64(str)
@@ -109,8 +108,8 @@ func memUpdate() (string, error) {
 		swapUse = uint64(swapArr.ksw_used) * uint64(pagesize)
 	}
 	swapPercent = int(swapUse * 100 / swapTotal)
-	
+
 	out := fmt.Sprintf("SW: %d%% of %s :: MEM %d%% of %s", swapPercent, humanBytes(float32(swapTotal)), memPercent, humanBytes(float32(memTotal)))
-	
+
 	return out, nil
 }
