@@ -1,7 +1,7 @@
 go-dwmstatus
 ============
 
-Fork off ctgrl/go-dwmstatus that doesn't require any external libraries.
-Displays current mpd song, the three loadaverages, date and time, and the current battery level.
+Fork off oniichaNj/go-dwmstatus that require exactly one external libraries.
+Displays current swap usage, memory usage, date and time on FreeBSD, hence external library.
 
-Don't whine about support missing, figure it out yourself instead. Or just file a bug report or even a pull request. 
+Don't whine about support missing, figure it out yourself instead.
